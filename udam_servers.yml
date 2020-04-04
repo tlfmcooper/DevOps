@@ -47,6 +47,7 @@ Resources:
     Properties:
       UserData:
         Fn::Base64: !Sub |
+          #!/bin/bash
           apt-get update -y
           apt-get install apache2 -y
           systemctl start apache2.service
@@ -116,3 +117,10 @@ Resources:
       VpcId:
         Fn::ImportValue:
           Fn::Sub: "${EnvironmentName}-VPCID"
+
+Outputs:
+  WebAppLB:
+    Description: The public URL of the LoadBalancer
+    Value: !GetAtt WebAppLB.DNSName
+    Export:
+      Name: !Sub ${EnvironmentName}-Udagram

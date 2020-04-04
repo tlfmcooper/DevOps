@@ -1,10 +1,10 @@
 Parameters:
-# whatever you consider a changing value, put it as a parameter instead of hard-coding it into your script
+    # whatever you consider a changing value, put it as a parameter instead of hard-coding it into your script
     EnvironmentName:
         Description: An environment name that will be prefixed to resource names
         Type: String
 
-    VpcCIDR: 
+    VpcCIDR:
         Description: Please enter the IP range (CIDR notation) for this VPC
         Type: String
         Default: 10.0.0.0/16
@@ -29,81 +29,77 @@ Parameters:
         Type: String
         Default: 10.0.3.0/24
 
-
 Resources:
- 
-
-    VPC: 
+    VPC:
         Type: AWS::EC2::VPC
         Properties:
             CidrBlock: !Ref VpcCIDR
             EnableDnsHostnames: true
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Ref EnvironmentName
-            
+
     InternetGateway:
         Type: AWS::EC2::InternetGateway
         Properties:
             Tags:
                 - Key: Name
                   Value: !Ref EnvironmentName
-            
+
     InternetGatewayAttachment:
         Type: AWS::EC2::VPCGatewayAttachment
         Properties:
             InternetGatewayId: !Ref InternetGateway
             VpcId: !Ref VPC
 
-    PublicSubnet1: 
+    PublicSubnet1:
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
-            AvailabilityZone: !Select [ 0, !GetAZs '' ]
+            AvailabilityZone: !Select [0, !GetAZs ""]
             CidrBlock: !Ref PublicSubnet1CIDR
             MapPublicIpOnLaunch: true
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
 
-    PublicSubnet2: 
+    PublicSubnet2:
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
-            AvailabilityZone: !Select [ 1, !GetAZs '' ]
+            AvailabilityZone: !Select [1, !GetAZs ""]
             CidrBlock: !Ref PublicSubnet2CIDR
             MapPublicIpOnLaunch: true
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
 
-    PrivateSubnet1: 
+    PrivateSubnet1:
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
-            AvailabilityZone: !Select [ 0, !GetAZs '' ]
+            AvailabilityZone: !Select [0, !GetAZs ""]
             CidrBlock: !Ref PrivateSubnet1CIDR
             MapPublicIpOnLaunch: false
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
 
-    PrivateSubnet2: 
+    PrivateSubnet2:
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
-            AvailabilityZone: !Select [ 0, !GetAZs '' ]
+            AvailabilityZone: !Select [0, !GetAZs ""]
             CidrBlock: !Ref PrivateSubnet2CIDR
             MapPublicIpOnLaunch: false
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
-                
 
     NatGateway1EIP:
         Type: AWS::EC2::EIP
         DependsOn: InternetGatewayAttachment
-        Properties: 
+        Properties:
             Domain: vpc
 
     NatGateway2EIP:
@@ -112,13 +108,13 @@ Resources:
         Properties:
             Domain: vpc
 
-    NatGateway1: 
+    NatGateway1:
         Type: AWS::EC2::NatGateway
-        Properties: 
+        Properties:
             AllocationId: !GetAtt NatGateway1EIP.AllocationId
             SubnetId: !Ref PublicSubnet1
 
-    NatGateway2: 
+    NatGateway2:
         Type: AWS::EC2::NatGateway
         Properties:
             AllocationId: !GetAtt NatGateway2EIP.AllocationId
@@ -126,16 +122,16 @@ Resources:
 
     PublicRouteTable:
         Type: AWS::EC2::RouteTable
-        Properties: 
+        Properties:
             VpcId: !Ref VPC
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Sub ${EnvironmentName} Public Routes
 
-    DefaultPublicRoute: 
+    DefaultPublicRoute:
         Type: AWS::EC2::Route
         DependsOn: InternetGatewayAttachment
-        Properties: 
+        Properties:
             RouteTableId: !Ref PublicRouteTable
             DestinationCidrBlock: 0.0.0.0/0
             GatewayId: !Ref InternetGateway
@@ -152,13 +148,12 @@ Resources:
             RouteTableId: !Ref PublicRouteTable
             SubnetId: !Ref PublicSubnet2
 
-
     PrivateRouteTable1:
         Type: AWS::EC2::RouteTable
-        Properties: 
+        Properties:
             VpcId: !Ref VPC
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Sub ${EnvironmentName} Private Routes (AZ1)
 
     DefaultPrivateRoute1:
@@ -176,10 +171,10 @@ Resources:
 
     PrivateRouteTable2:
         Type: AWS::EC2::RouteTable
-        Properties: 
+        Properties:
             VpcId: !Ref VPC
-            Tags: 
-                - Key: Name 
+            Tags:
+                - Key: Name
                   Value: !Sub ${EnvironmentName} Private Routes (AZ2)
 
     DefaultPrivateRoute2:
@@ -198,21 +193,66 @@ Resources:
     #instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
     ProfileWithRolesForOurApp:
         Type: AWS::IAM::InstanceProfile
-        Properties: 
+        Properties:
             Roles:
                 - UdacityS3ReadOnlyEC2
-                #!/bin/bash
-            apt-get update -y
-                apt-get install unzip awscli -y
-                apt-get install apache2 -y
-                systemctl start apache2.service
-                cd /var/www/html
-                aws s3 cp s3://udacity-demo-1/udacity.zip .
-                unzip -o udacity.zip
-Outputs: 
+Outputs:
+    VPC:
+        Description: A reference to the created VPC
+        Value: !Ref VPC
+        Export:
+            Name: !Sub ${EnvironmentName}-VPCID
 
-    WebAppLB:
-    Description: The public URL of the LoadBalancer
-    Value: !GetAtt WebAppLB.DNSName
-    Export:
-        Name: !Sub ${EnvironmentName}-Udagram
+    VPCPublicRouteTable:
+        Description: Public Routing
+        Value: !Ref PublicRouteTable
+        Export:
+            Name: !Sub ${EnvironmentName}-PUB-RT
+
+    VPCPrivateRouteTable1:
+        Description: Private Routing AZ1
+        Value: !Ref PrivateRouteTable1
+        Export:
+            Name: !Sub ${EnvironmentName}-PRI1-RT
+
+    VPCPrivateRouteTable2:
+        Description: Private Routing AZ2
+        Value: !Ref PrivateRouteTable2
+        Export:
+            Name: !Sub ${EnvironmentName}-PRI2-RT
+
+    PublicSubnets:
+        Description: A list of the public subnets
+        Value: !Join [",", [!Ref PublicSubnet1, !Ref PublicSubnet2]]
+        Export:
+            Name: !Sub ${EnvironmentName}-PUB-NETS
+
+    PrivateSubnets:
+        Description: A list of the private subnets
+        Value: !Join [",", [!Ref PrivateSubnet1, !Ref PrivateSubnet2]]
+        Export:
+            Name: !Sub ${EnvironmentName}-PRIV-NETS
+
+    PublicSubnet1:
+        Description: A reference to the public subnet in the 1st Availability Zone
+        Value: !Ref PublicSubnet1
+        Export:
+            Name: !Sub ${EnvironmentName}-PUB1-SN
+
+    PublicSubnet2:
+        Description: A reference to the public subnet in the 2nd Availability Zone
+        Value: !Ref PublicSubnet2
+        Export:
+            Name: !Sub ${EnvironmentName}-PUB2-SN
+
+    PrivateSubnet1:
+        Description: A reference to the private subnet in the 1st Availability Zone
+        Value: !Ref PrivateSubnet1
+        Export:
+            Name: !Sub ${EnvironmentName}-PRI1-SN
+
+    PrivateSubnet2:
+        Description: A reference to the private subnet in the 2nd Availability Zone
+        Value: !Ref PrivateSubnet2
+        Export:
+            Name: !Sub ${EnvironmentName}-PRI2-SN
