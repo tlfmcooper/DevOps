@@ -29,6 +29,11 @@ Parameters:
         Type: String
         Default: 10.0.3.0/24
 
+    UdacityS3ReadOnlyEC2:
+        Type: String
+        Description: arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        
+
 Resources:
     VPC:
         Type: AWS::EC2::VPC
@@ -190,12 +195,29 @@ Resources:
             RouteTableId: !Ref PrivateRouteTable2
             SubnetId: !Ref PrivateSubnet2
 
+    RootRole:
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Action:
+                          - "s3:Get*"
+                          - "s3:List*"
+                      Effect: Allow
+                      Principal:
+                          Service:
+                              - ec2.amazonaws.com
+                Version: "2012-10-17"
+            ManagedPolicyArns:
+                - UdacityS3ReadOnlyEC2
+            Path: /
+            Type: "AWS::IAM::Role"
+
     #instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
     ProfileWithRolesForOurApp:
         Type: AWS::IAM::InstanceProfile
         Properties:
             Roles:
-                - UdacityS3ReadOnlyEC2
+                - Ref: "RootRole"
 Outputs:
     VPC:
         Description: A reference to the created VPC

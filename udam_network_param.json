@@ -22,5 +22,8 @@
     {
         "ParameterKey": "PrivateSubnet2CIDR",
         "ParameterValue": "10.0.3.0/24"
+    },
+    {
+        "ParameterKey": "UdacityS3ReadOnlyEC2"
     }
 ]
