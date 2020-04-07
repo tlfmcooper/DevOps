@@ -29,10 +29,6 @@ Parameters:
         Type: String
         Default: 10.0.3.0/24
 
-    UdacityS3ReadOnlyEC2:
-        Type: String
-        Description: arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-
 Resources:
     VPC:
         Type: AWS::EC2::VPC
@@ -195,6 +191,7 @@ Resources:
             SubnetId: !Ref PrivateSubnet2
 
     RootRole:
+        Type: "AWS::IAM::Role"
         Properties:
             AssumeRolePolicyDocument:
                 Statement:
@@ -207,7 +204,7 @@ Resources:
                               - ec2.amazonaws.com
                 Version: "2012-10-17"
             ManagedPolicyArns:
-                - !Ref UdacityS3ReadOnlyEC2
+                - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
             Path: /
             Type: "AWS::IAM::Role"
 
