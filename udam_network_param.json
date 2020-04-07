@@ -24,6 +24,7 @@
         "ParameterValue": "10.0.3.0/24"
     },
     {
-        "ParameterKey": "UdacityS3ReadOnlyEC2"
+        "ParameterKey": "UdacityS3ReadOnlyEC2",
+        "ParameterValue": "arn:aws:iam::aws:policy/AmazonS3FullAccess"
     }
 ]

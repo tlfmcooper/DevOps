@@ -32,7 +32,6 @@ Parameters:
     UdacityS3ReadOnlyEC2:
         Type: String
         Description: arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-        
 
 Resources:
     VPC:
@@ -208,7 +207,7 @@ Resources:
                               - ec2.amazonaws.com
                 Version: "2012-10-17"
             ManagedPolicyArns:
-                - UdacityS3ReadOnlyEC2
+                - !Ref UdacityS3ReadOnlyEC2
             Path: /
             Type: "AWS::IAM::Role"
 
