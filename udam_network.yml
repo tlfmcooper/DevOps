@@ -194,18 +194,32 @@ Resources:
         Type: "AWS::IAM::Role"
         Properties:
             AssumeRolePolicyDocument:
+                Version: "2012-10-17"
                 Statement:
-                    - Action:
-                          - "s3:Get*"
-                          - "s3:List*"
-                      Effect: Allow
+                    - Effect: "Allow"
                       Principal:
                           Service:
-                              - ec2.amazonaws.com
-                Version: "2012-10-17"
+                              - "ec2.amazonaws.com"
+                      Action:
+                          - "sts:AssumeRole"
             ManagedPolicyArns:
                 - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-            Path: /
+            Path: "/"
+    RolePolicies:
+        Type: "AWS::IAM::Policy"
+        Properties:
+            PolicyName: "root"
+            PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    - Effect: "Allow"
+                      Action:
+                          - "s3:Get*"
+                          - "s3:List*"
+                      Resource: "*"
+
+            Roles:
+                - Ref: "RootRole"
 
     #instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
     ProfileWithRolesForOurApp:
