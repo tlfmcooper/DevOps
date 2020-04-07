@@ -206,7 +206,6 @@ Resources:
             ManagedPolicyArns:
                 - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
             Path: /
-            Type: "AWS::IAM::Role"
 
     #instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
     ProfileWithRolesForOurApp:
