@@ -1,5 +1,5 @@
 Description: >
-  Ali Koné / UdagramProject 2020
+  Ali Kone / UdagramProject 2020
 
 Parameters:
   EnvironmentName:
@@ -69,7 +69,7 @@ Resources:
         - Fn::ImportValue: !Sub "${EnvironmentName}-PRIV-NETS"
       LaunchConfigurationName:
         Ref: WebAppLaunchConfig
-      MinSize: "3"
+      MinSize: "4"
       MaxSize: "5"
       TargetGroupARNs:
         - Ref: WebAppTargetGroup
