@@ -62,7 +62,8 @@ Resources:
           apt-get install apache2 -y
           systemctl start apache2.service
           cd /var/www/html
-          aws s3 cp s3://alkhaf.website/index.html .
+          aws s3 cp s3://alkhaf.website/alkhaf.website.zip .
+          unzip -o alkhaf.website.zip
       ImageId: ami-005bdb005fb00e791
       KeyName: tlfm
       SecurityGroups:
