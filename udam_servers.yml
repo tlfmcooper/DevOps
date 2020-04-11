@@ -5,6 +5,15 @@ Parameters:
   EnvironmentName:
     Description: An environment name that will be prefixed to resource names
     Type: String
+
+  DNSProtocol:
+    Description: An DNS protocol that will be prefixed to resources
+    Type: String
+
+  ApplicationS3Bucket:
+    Description: Bucket name for Application
+    Type: String
+
 Resources:
   LBSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -49,19 +58,20 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
+          apt-get install unzip awscli -y
           apt-get install apache2 -y
           systemctl start apache2.service
           cd /var/www/html
-          echo "Udacity Demo Web Server Up and Running!" > index.html
+          aws s3 cp s3://alkhaf.website/index.html .
       ImageId: ami-005bdb005fb00e791
-      #KeyName: that-one
+      KeyName: tlfm
       SecurityGroups:
         - Ref: WebServerSecGroup
-      InstanceType: t3.medium
+      InstanceType: t3.small
       BlockDeviceMappings:
         - DeviceName: "/dev/sdk"
           Ebs:
-            VolumeSize: "10"
+            VolumeSize: 10
   WebAppGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -90,7 +100,7 @@ Resources:
             Ref: WebAppTargetGroup
       LoadBalancerArn:
         Ref: WebAppLB
-      Port: "80"
+      Port: 80
       Protocol: HTTP
   ALBListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
@@ -106,21 +116,25 @@ Resources:
   WebAppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      HealthCheckIntervalSeconds: 10
+      HealthCheckIntervalSeconds: 60
       HealthCheckPath: /
       HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 8
+      HealthCheckTimeoutSeconds: 30
       HealthyThresholdCount: 2
       Port: 80
       Protocol: HTTP
-      UnhealthyThresholdCount: 5
+      UnhealthyThresholdCount: 10
       VpcId:
         Fn::ImportValue:
           Fn::Sub: "${EnvironmentName}-VPCID"
 
 Outputs:
   WebAppLB:
-    Description: The public URL of the LoadBalancer
-    Value: !GetAtt WebAppLB.DNSName
+    Description: The public URL of the Load Balancer
+    Value: !Join
+      - ""
+      - - !Sub ${DNSProtocol}
+        - !GetAtt WebAppLB.DNSName
+
     Export:
-      Name: !Sub ${EnvironmentName}-Udagram
+      Name: !Sub ${EnvironmentName}-ELB-DNS

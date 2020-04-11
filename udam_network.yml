@@ -1,3 +1,7 @@
+Description: >
+    Ali Kone
+    This deploys the network infrastructure
+
 Parameters:
     # whatever you consider a changing value, put it as a parameter instead of hard-coding it into your script
     EnvironmentName:
@@ -34,6 +38,7 @@ Resources:
         Type: AWS::EC2::VPC
         Properties:
             CidrBlock: !Ref VpcCIDR
+            EnableDnsSupport: true
             EnableDnsHostnames: true
             Tags:
                 - Key: Name
@@ -190,7 +195,7 @@ Resources:
             RouteTableId: !Ref PrivateRouteTable2
             SubnetId: !Ref PrivateSubnet2
 
-    RootRole:
+    UdacityS3ReadOnlyEC2:
         Type: "AWS::IAM::Role"
         Properties:
             AssumeRolePolicyDocument:
@@ -219,14 +224,14 @@ Resources:
                       Resource: "*"
 
             Roles:
-                - Ref: "RootRole"
+                - Ref: "UdacityS3ReadOnlyEC2"
 
     #instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
     ProfileWithRolesForOurApp:
         Type: AWS::IAM::InstanceProfile
         Properties:
             Roles:
-                - Ref: "RootRole"
+                - Ref: "UdacityS3ReadOnlyEC2"
 Outputs:
     VPC:
         Description: A reference to the created VPC
